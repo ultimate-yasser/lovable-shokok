@@ -37,6 +37,9 @@ jobs:
       - name: Build Android Web Bundle
         run: bun run build:android
 
+      - name: Generate Android Assets
+        run: bun run android:assets
+
       - name: Install Android Platform
         run: |
           bunx cap add android
@@ -56,4 +59,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: shokok-debug-apk
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          path: android/app/build/outputs/apk/debug/Shokok.apk
