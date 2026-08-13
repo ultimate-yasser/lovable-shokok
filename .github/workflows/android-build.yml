@@ -1,4 +1,4 @@
-name: Build Android APK
+name: Build Shokok APK
 
 on:
   workflow_dispatch:
@@ -34,19 +34,24 @@ jobs:
       - name: Install Dependencies
         run: bun install
 
-      - name: Build Android Web Bundle
+      - name: Build Offline Web Bundle
         run: bun run build:android
 
-      - name: Generate Android Assets
+      - name: Ensure Android Platform Exists
+        run: |
+          if [ ! -d "android" ]; then
+            bunx cap add android
+          fi
+
+      - name: Generate Android Icons and Splash Screens
         run: bun run android:assets
 
-      - name: Install Android Platform
-        run: |
-          bunx cap add android
-      
       - name: Sync Capacitor Android
+        run: bunx cap sync android
+
+      - name: Verify Generated Launcher Assets
         run: |
-          bunx cap sync android
+          find android/app/src/main/res -name "ic_launcher*" | sort || true
 
       - name: Grant Gradle Permission
         run: chmod +x android/gradlew
@@ -55,8 +60,12 @@ jobs:
         working-directory: android
         run: ./gradlew assembleDebug
 
+      - name: Rename APK
+        run: |
+          cp android/app/build/outputs/apk/debug/app-debug.apk Shokok.apk
+
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: shokok-debug-apk
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          name: Shokok
+          path: Shokok.apk
